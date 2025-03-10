@@ -1,6 +1,7 @@
 """
 Calculate ETag values for API resources.
 """
+
 import hashlib
 import logging
 from dataclasses import dataclass
@@ -119,8 +120,8 @@ class EtagUpdate:
         connection = transaction.get_connection(using)
 
         func = MethodCallback(etag_update.calculate_new_value)
-        for _, _func in connection.run_on_commit:
-            if func == _func:
+        for sids_and_func in connection.run_on_commit:
+            if [_ for _ in sids_and_func if _ == func]:
                 logger.debug(
                     "Update for model instance %r with pk %s was already scheduled",
                     type(obj),
